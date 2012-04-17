@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+<title>Test</title>
+<script src="require.js"></script>
+</head>
+<body>
+<script>
+require(['html'], function( html ){
+    var div = html.html.div;
+    var style = html.html.style;
+    var display = html.css.display;
+    var none = html.css.none;
+    //var test = div( div( style( display( none()))));
+    var test = div( style( display( none())));
+    document.body.appendChild(test);
+});
+</script>
+</body>
+</html>
