@@ -11,81 +11,6 @@ define( [], function( dojo ) {
 *
 */
 
-/*
-function __setAttributes( elem, args ) {
-    for( var i = 0; i < args.length; i++ ) {
-        var attr = args[i];
-        var attr_type = typeof(attr);
-        if( attr_type == 'function' ) {
-            attr = attr.call( elem );
-            attr_type = typeof(attr);
-        }
-        if( attr_type == 'object' ) {
-            for( var k in attr ) {
-                var v = attr[k];
-                elem.setAttribute( k, v );
-            }
-        } else if( attr_type == 'undefined' ) {
-        } else { throw new Error(); }
-    }
-};
-
-function __appendChildren( elem, args ) {
-    for( var i = 0; i < args.length; i++ ) {
-        var child = args[i];
-        var child_type = typeof(child);
-        if( child_type == 'function' ) {
-            child = child.call( elem );
-            child_type = typeof(child);
-        }
-        if( child_type == 'object' ) {
-            elem.appendChild( child );
-        } else if( child_type == 'undefined' ) {
-        } else { throw new Error(); }
-    }
-}
-
-function __createElement( type ) {
-    var func_elem = function() {
-        var _elem = document.createElement( type );
-        __setAttributes( _elem, arguments );
-        var func_container = function() {
-            __appendChildren( _elem, arguments );
-            return _elem;
-        };
-        return func_container;
-    };
-    return func_elem;
-}
-
-function __createAttribute( name, default_value ) {
-    var func_attr = function() {
-        // save the arguments to the attribute
-        var args = arguments;
-        var func_container = function() {
-            // the element is passed as this to the container
-            var elem = this;
-            var attr = default_value;
-            // process each argument, passing the element and attribute reference
-            for( var i = 0; i < args.length; i++ ) {
-                var arg = args[i];
-                var arg_type = typeof(arg);
-                if( arg_type == 'function' ) {
-                    arg = arg.call( elem, attr );
-                    arg_type = typeof(arg);
-                }
-                if( arg_type == 'object' ) {
-                } else if( arg_type == 'string' ) {
-                } else if( arg_type == 'undefined' ) {
-                } else { throw new Error(); }
-            }
-        };
-        return func_container;
-    };
-    return func_attr;
-}
-*/
-
 function HtmlElementFactory( type ) {
     var func_element = function() {
         function F() {}
@@ -101,7 +26,7 @@ function HtmlElementFactory( type ) {
                 arg = arg.call( _elem );
                 arg_type = typeof(arg);
             }
-            if( arg_type == 'object' && arg.nodeType == 1 ) { /* How do we know if this is an HTML Element? */
+            if( arg_type == 'object' && arg.nodeType == 1 ) {
                 _elem.appendChild( arg );
             } else if( arg_type == 'undefined' ) {
             } else { throw new Error(); }
@@ -182,21 +107,13 @@ var css_white = ValueFactory( 'white' );
 var html_disabled = ValueFactory( 'disabled' );
 
 // Declare Public methods
-var html = {
+return {
     'div': html_div,
     'style': html_style,
     'disabled': html_disabled,
-};
-
-var css = {
     'display': css_display,
     'color': css_color,
     'none': css_none,
     'white': css_white,
-};
-
-return {
-    'html': html,
-    'css': css,
 };
 });

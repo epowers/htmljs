@@ -7,12 +7,11 @@
 <body>
 <script>
 require(['html'], function( html ){
-    var div = html.html.div;
-    var style = html.html.style;
-    var display = html.css.display;
-    var none = html.css.none;
-    //var test = div( div( style( display( none()))));
-    var test = div( style( display( none())));
+    var div = html.div;
+    var style = html.style;
+    var display = html.display;
+    var none = html.none;
+    var test = div( div( style( display( none ))));
     document.body.appendChild(test);
 });
 </script>
