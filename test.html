@@ -6,13 +6,24 @@
 </head>
 <body>
 <script>
-require(['html'], function( html ){
-    var div = html.div;
-    var style = html.style;
-    var display = html.display;
-    var none = html.none;
-    var test = div( div( style( display( none ))));
-    document.body.appendChild(test);
+require(['html'], function( _html ){
+    var html = _html.html;
+    var body = _html.body;
+    var div = _html.div;
+    var style = _html.style;
+    var color = _html.color;
+    var display = _html.display;
+    var white = _html.white;
+    var none = _html.none;
+
+    html(
+        body(
+            div( style( color( white )),
+                div( style( color( white ), display( none ))
+                )
+            )
+        )
+    );
 });
 </script>
 </body>

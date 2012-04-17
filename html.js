@@ -1,4 +1,4 @@
-define( [], function( dojo ) {
+define( [], function() {
 
 /*
 * Element, attribute, and container functions.
@@ -13,8 +13,15 @@ define( [], function( dojo ) {
 
 function HtmlElementFactory( type ) {
     var func_element = function() {
+        var typeof_type = typeof(type);
         function F() {}
-        F.prototype = document.createElement( type );
+        if( typeof_type == 'string' ) {
+            F.prototype = document.createElement( type );
+        } else if( typeof_type == 'object' ) {
+            F.prototype = type;
+        } else if( typeof_type == 'undefined' ) {
+            F.prototype.appendChild = function() {};
+        } else { throw new Error(); }
         F.prototype.constructor = F;
         var _elem = new F();
 
@@ -95,6 +102,9 @@ function ValueFactory( type ) {
     return func_value;
 }
 
+var html_html = HtmlElementFactory();
+var html_head = HtmlElementFactory();
+var html_body = HtmlElementFactory( document.body );
 var html_div = HtmlElementFactory( 'div' );
 var html_style = HtmlAttributeFactory( 'style' );
 
@@ -108,6 +118,9 @@ var html_disabled = ValueFactory( 'disabled' );
 
 // Declare Public methods
 return {
+    'html': html_html,
+    'head': html_head,
+    'body': html_body,
     'div': html_div,
     'style': html_style,
     'disabled': html_disabled,
