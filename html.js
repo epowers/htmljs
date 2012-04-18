@@ -28,7 +28,7 @@ function __resolveValues( args ) {
     return values;
 }
 
-function __resolveValue( args ) {
+function __resolveSingleValue( args ) {
     var value;
     var argc = args.length;
     for( var i = 0; i < argc; i++ ) {
@@ -63,31 +63,39 @@ function __appendChildren( elem, args ) {
 }
 
 function __createElement( type ) {
+    function func_container() { }
     var typeof_type = typeof(type);
-    function F() {}
     if( typeof_type == 'string' ) {
-        F.prototype = document.createElement( type );
+        func_container.prototype = document.createElement( type );
     } else if( typeof_type == 'object' ) {
-        F.prototype = type;
+        func_container.prototype = type;
     } else if( typeof_type == 'undefined' ) {
-        F.prototype.appendChild = function() {};
+        func_container.prototype.appendChild = function() {};
     } else { throw new Error(); }
-    F.prototype.constructor = F;
-    var _elem = new F();
+    func_container.prototype.constructor = func_container;
+    var _elem = new func_container;
     return _elem;
 }
 
 function HtmlElementFactory( type ) {
-    var func_element = function() {
-        var _elem = __createElement( type );
-        __appendChildren( _elem, arguments );
+    function func_element() {
+        var _elem;
+        if( typeof(type) != 'string' || this instanceof func_element ) {
+            _elem = __createElement( type );
+            __appendChildren( _elem, arguments );
+        } else {
+            var args = Array.prototype.slice.call( arguments );
+            _elem = args[0];
+            args = args.slice(1);
+            __appendChildren( _elem, args );
+        }
         return _elem;
     }
     return func_element;
 }
 
 function HtmlCssAttributeFactory( type ) {
-    var func_attr = function() {
+    function func_attr() {
         var values = __resolveValues( arguments );
         var value = values.join(';');
         var func_container = function() {
@@ -99,9 +107,9 @@ function HtmlCssAttributeFactory( type ) {
 }
 
 function CSSPropertyFactory( type ) {
-    var func_property = function() {
-        var value = __resolveValue( arguments );
-        var func_container = function() {
+    function func_property() {
+        var value = __resolveSingleValue( arguments );
+        function func_container() {
             return type + ':' + value;
         };
         return func_container;
@@ -110,7 +118,7 @@ function CSSPropertyFactory( type ) {
 }
 
 function ValueFactory( type ) {
-    var func_value = function() {
+    function func_value() {
         // validate that parent is display.
         //var name = this.name;
         //if( name != "display" ) { throw new Error(); }
@@ -130,6 +138,7 @@ var css_color = CSSPropertyFactory( 'color' );
 
 var css_none = ValueFactory( 'none' );
 var css_white = ValueFactory( 'white' );
+var css_black = ValueFactory( 'black' );
 
 var html_disabled = ValueFactory( 'disabled' );
 
@@ -145,5 +154,6 @@ return {
     'color': css_color,
     'none': css_none,
     'white': css_white,
+    'black': css_black,
 };
 });

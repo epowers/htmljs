@@ -14,16 +14,16 @@ require(['html'], function( _html ){
     var color = _html.color;
     var display = _html.display;
     var white = _html.white;
+    var black = _html.black;
     var none = _html.none;
 
+    var d = new div( style( color( white ), display( none )));
     html(
         body(
-            div( style( color( white )),
-                div( style( color( white ), display( none ))
-                )
-            )
+            new div( style( color( white )), d )
         )
     );
+    div( d, style( color( black )), new div( style( display( none ))));
 });
 </script>
 </body>
