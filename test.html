@@ -15,15 +15,18 @@ require(['html'], function( _html ){
     var display = _html.display;
     var white = _html.white;
     var black = _html.black;
+    var disabled = _html.disabled;
     var none = _html.none;
 
-    var d = new div( style( color( white ), display( none )));
-    html(
-        body(
-            new div( style( color( white )), d )
-        )
-    );
-    div( d, style( color( black )), new div( style( display( none ))));
+    /* create new div, unparented */
+    var d = new div( style( color( white )));
+
+    /* create a new div and parent under body, with d as child */
+    html( body( new div( style( color( '#f58914')), d )));
+
+    /* modify the style of d and add a new child */
+    var e = new div( style( display( none )));
+    div( d, style( color( black )), e);
 });
 </script>
 </body>

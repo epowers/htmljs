@@ -57,6 +57,8 @@ function __appendChildren( elem, args ) {
         }
         if( arg_type == 'object' && arg.nodeType == 1 ) {
             elem.appendChild( arg );
+        } else if( arg_type == 'string' ) {
+            elem.innerHTML += arg;
         } else if( arg_type == 'undefined' ) {
         } else { throw new Error(); }
     }
@@ -85,7 +87,7 @@ function HtmlElementFactory( type ) {
             __appendChildren( _elem, arguments );
         } else {
             var args = Array.prototype.slice.call( arguments );
-            _elem = args[0];
+            _elem = __createElement( args[0] );
             args = args.slice(1);
             __appendChildren( _elem, args );
         }
@@ -100,6 +102,32 @@ function HtmlCssAttributeFactory( type ) {
         var value = values.join(';');
         var func_container = function() {
             this.setAttribute( type, value );
+        }
+        return func_container;
+    }
+    return func_attr;
+}
+
+function HtmlAttributeFactory( type ) {
+    function func_attr() {
+        var value = __resolveSingleValue( arguments );
+        var func_container = function() {
+            this.setAttribute( type, value );
+        }
+        return func_container;
+    }
+    return func_attr;
+}
+
+function HtmlBoolAttributeFactory( type ) {
+    function func_attr() {
+        var value = __resolveSingleValue( arguments );
+        var func_container = function() {
+            if( typeof(value) == 'undefined' || value ) {
+                this.setAttribute( type, true );
+            } else {
+                this.removeAttribute( type );
+            }
         }
         return func_container;
     }
@@ -127,33 +155,70 @@ function ValueFactory( type ) {
     return func_value;
 }
 
-var html_html = HtmlElementFactory();
-var html_head = HtmlElementFactory();
-var html_body = HtmlElementFactory( document.body );
-var html_div = HtmlElementFactory( 'div' );
-var html_style = HtmlCssAttributeFactory( 'style' );
-
-var css_display = CSSPropertyFactory( 'display' );
-var css_color = CSSPropertyFactory( 'color' );
-
-var css_none = ValueFactory( 'none' );
-var css_white = ValueFactory( 'white' );
-var css_black = ValueFactory( 'black' );
-
-var html_disabled = ValueFactory( 'disabled' );
-
 // Declare Public methods
-return {
-    'html': html_html,
-    'head': html_head,
-    'body': html_body,
-    'div': html_div,
-    'style': html_style,
-    'disabled': html_disabled,
-    'display': css_display,
-    'color': css_color,
-    'none': css_none,
-    'white': css_white,
-    'black': css_black,
-};
+var ELEMENTS = [
+    'div',
+    'a',
+    'span',
+    'input',
+    'img',
+    'video',
+    'script',
+    'style',
+    'ul',
+    'ol',
+    'li',
+    'select',
+    'option',
+    'button',
+    'form',
+    'iframe',
+    ];
+var ATTRIBUTES = [
+    'src',
+    'href',
+    'type',
+    'id',
+    'name',
+    'value',
+    'class',
+    'action',
+    'target',
+    ];
+var CSSATTRIBUTES = [
+    'style',
+    ];
+var BOOLATTRIBUTES = [
+    'disabled',
+    ];
+var CSSPROPERTIES = [
+    'display',
+    'color',
+    ];
+var VALUES = [
+    'none',
+    'white',
+    'black',
+    ];
+
+var result = {};
+function __register( list, func ) {
+    for( var i in list ) {
+        var e = list[i];
+        result[e] = func( e );
+    }
+}
+
+result['html'] = HtmlElementFactory();
+result['head'] = HtmlElementFactory();
+result['body'] = HtmlElementFactory( document.body );
+
+__register( ELEMENTS, HtmlElementFactory );
+__register( ATTRIBUTES, HtmlAttributeFactory );
+__register( BOOLATTRIBUTES, HtmlBoolAttributeFactory );
+__register( CSSATTRIBUTES, HtmlCssAttributeFactory );
+__register( CSSPROPERTIES, CSSPropertyFactory );
+__register( VALUES, ValueFactory );
+
+return result;
 });
