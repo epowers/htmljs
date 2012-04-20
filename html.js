@@ -1,15 +1,29 @@
-define( [], function() {
+(function() {
+
+//////////////////
+// Private context
+
+///////
+// init
+
+function init() {
 
 /*
 * Element, attribute, and container functions.
 *
-* Each function assembles parameters, and returns a function.
-* Return functions return resolved objects.
-* The parent of each function calls the function with the parent as this.
+* Some functions assemble parameters and return a function.
+* Return functions return resolved objects or values, or set values on parents.
+* The caller of some functions pass the parent as this.
 *
 * Attributes and children can validate the parent.
 *
+* Html elements instantiated with new create new elements.
+* Html elements called without new use the first argument as an existing element to modify.
+*
 */
+
+////
+// Resolve arguments by calling function arguments and returning an array of resolved values.
 
 function __resolveValues( args ) {
     var values = [];
@@ -27,6 +41,9 @@ function __resolveValues( args ) {
     }
     return values;
 }
+
+////
+// Resolve one value from the argument list, throw an error if there is more than one.
 
 function __resolveSingleValue( args ) {
     var value;
@@ -46,6 +63,12 @@ function __resolveSingleValue( args ) {
     return value;
 }
 
+////
+// Resolve arguments for html elements as one of:
+// * A child html element appended to the parent element.
+// * A string representing HTML to be appended to the parent innerHTML.
+// * An html attribute function that resolves itself on the element and returns undefined.
+
 function __appendChildren( elem, args ) {
     var argc = args.length;
     for( var i = 0; i < argc; i++ ) {
@@ -64,6 +87,12 @@ function __appendChildren( elem, args ) {
     }
 }
 
+////
+// Create an html element function for certain types.
+// If a string is specified, create that type.
+// If an object is specified, derive from that object as a prototype.
+// If no arguments, create a null function.
+
 function __createElement( type ) {
     function func_container() { }
     var typeof_type = typeof(type);
@@ -78,6 +107,9 @@ function __createElement( type ) {
     var _elem = new func_container;
     return _elem;
 }
+
+////
+// Instantiate an html element function that sets attributes and appends children.
 
 function HtmlElementFactory( type ) {
     function func_element() {
@@ -96,6 +128,9 @@ function HtmlElementFactory( type ) {
     return func_element;
 }
 
+////
+// Instantiate an html attribute function for css that combines values into a single css string.
+
 function HtmlCssAttributeFactory( type ) {
     function func_attr() {
         var values = __resolveValues( arguments );
@@ -108,6 +143,9 @@ function HtmlCssAttributeFactory( type ) {
     return func_attr;
 }
 
+////
+// Instantiate an html attribute function for simple value types.
+
 function HtmlAttributeFactory( type ) {
     function func_attr() {
         var value = __resolveSingleValue( arguments );
@@ -118,6 +156,9 @@ function HtmlAttributeFactory( type ) {
     }
     return func_attr;
 }
+
+////
+// Instantiate an html attribute function for bool.
 
 function HtmlBoolAttributeFactory( type ) {
     function func_attr() {
@@ -134,6 +175,9 @@ function HtmlBoolAttributeFactory( type ) {
     return func_attr;
 }
 
+////
+// Instantiate a CSS property function that generates syntax for a single CSS key/value.
+
 function CSSPropertyFactory( type ) {
     function func_property() {
         var value = __resolveSingleValue( arguments );
@@ -145,6 +189,9 @@ function CSSPropertyFactory( type ) {
     return func_property;
 }
 
+////
+// Instantiate a value function.
+
 function ValueFactory( type ) {
     function func_value() {
         // validate that parent is display.
@@ -155,7 +202,10 @@ function ValueFactory( type ) {
     return func_value;
 }
 
+/////////////////////////
 // Declare Public methods
+
+// lists of HTML element types, attribute types, etc.
 var ELEMENTS = [
     'div',
     'a',
@@ -201,6 +251,7 @@ var VALUES = [
     'black',
     ];
 
+// function for generating key/value results from a list and a function object.
 var result = {};
 function __register( list, func ) {
     for( var i in list ) {
@@ -209,10 +260,7 @@ function __register( list, func ) {
     }
 }
 
-result['html'] = HtmlElementFactory();
-result['head'] = HtmlElementFactory();
-result['body'] = HtmlElementFactory( document.body );
-
+// register all of the types above in the result object dictionary.
 __register( ELEMENTS, HtmlElementFactory );
 __register( ATTRIBUTES, HtmlAttributeFactory );
 __register( BOOLATTRIBUTES, HtmlBoolAttributeFactory );
@@ -220,5 +268,47 @@ __register( CSSATTRIBUTES, HtmlCssAttributeFactory );
 __register( CSSPROPERTIES, CSSPropertyFactory );
 __register( VALUES, ValueFactory );
 
+// Special case objects that do not initialize the function with a string argument.
+result['html'] = HtmlElementFactory();
+result['head'] = HtmlElementFactory();
+result['body'] = HtmlElementFactory( document.body );
+
 return result;
-});
+}
+
+// end init
+///////////
+
+// Use this variable to initialize once.
+var _init_html;
+
+try{
+    //
+    // Register with require if possible.
+    // If we use dojo, init will need dojo as an argument,
+    // hence why this convoluted init/try/catch logic.
+    //
+
+    define([],function(){
+        _init_html = false;
+        _init_html = init();
+        return _init_html;
+    });
+}
+catch(e){
+    //
+    // Otherwise expose public methods on a global html object
+    //
+
+    // if init fails, re-throw the exception.
+    if(_init_html==false) { throw e; }
+    // if define fails and init never ran, try re-running init without define.
+    if(typeof _init_html=='undefined'){ _init_html = init(); }
+    // if init was successful and no global html exists, set it.
+    if(typeof html=='undefined'){ html = _init_html; }
+}
+
+// END private context
+//////////////////////
+
+})();
