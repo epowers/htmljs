@@ -1,0 +1,7 @@
+
+html.js provides simple methods for generating HTML elements, setting attributes, and modifying elements, with pure Javascript.
+
+No HTML coding.
+
+The purpose of html.js is to make it possible to construct Web Applications using client-side Javascript.  No HTML coding is necessary.
+
